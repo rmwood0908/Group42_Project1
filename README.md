@@ -1,2 +1,2 @@
-# Group42_Project1
+# README
 Group 42's project for CS440
