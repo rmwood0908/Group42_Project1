@@ -54,6 +54,6 @@ These use cases exercise all architectural layers: user interface, client-server
 
 ## Team Members and Contacts
 
-- Jarom Craghead
-- Chandler Silk
+- Jarom Craghead (jc4885@nau.edu)
+- Chandler Silk (cs2673@nau.edu)
 - Ryan Wood (rmw367@nau.edu)
