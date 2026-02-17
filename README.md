@@ -165,7 +165,26 @@ These use cases exercise all architectural layers: user interface, client-server
 
 ## Demo Video
 
-https://youtu.be/B-sTZTASrWc
+[Watch the Demo on YouTube](https://youtu.be/B-sTZTASrWc)
+
+---
+
+## UML Diagrams
+
+### Use Case Diagram
+![Use Case Diagram](Diagrams/SnippeUMLCase.drawio.png)
+
+### Class Diagram
+![Class Diagram](Diagrams/ClassDiagram.drawio.png)
+
+### Activity Diagram
+![Activity Diagram](Diagrams/P1ActivityDiagram.png)
+
+### Object Diagram 1
+![Object Diagram 1](Diagrams/P1ObjectDiagram1.png)
+
+### Object Diagram 2
+![Object Diagram 2](Diagrams/P1ObjectDiagram2.png)
 
 ---
 
