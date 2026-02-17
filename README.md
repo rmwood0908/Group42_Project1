@@ -172,7 +172,7 @@ These use cases exercise all architectural layers: user interface, client-server
 ## UML Diagrams
 
 ### Use Case Diagram
-![Use Case Diagram](Diagrams/SnippeUMLCase.drawio.png)
+![Use Case Diagram](Diagrams/SnippetUMLCase.drawio.png)
 
 ### Class Diagram
 ![Class Diagram](Diagrams/ClassDiagram.drawio.png)
