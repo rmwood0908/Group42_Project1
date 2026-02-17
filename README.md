@@ -165,7 +165,7 @@ These use cases exercise all architectural layers: user interface, client-server
 
 ## Demo Video
 
-[Link to demo video will be added here]
+https://youtu.be/B-sTZTASrWc
 
 ---
 
