@@ -70,6 +70,11 @@ button[type="submit"]:hover {
   background: #005fa3;
 }
 
+button[disabled] {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 .snippet-card {
   background: #2d2d2d;
   border-radius: 8px;
@@ -89,8 +94,22 @@ button[type="submit"]:hover {
   font-size: 1.1rem;
 }
 
+.snippet-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .language-badge {
   background: #0078d4;
+  color: white;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.public-badge {
+  background: #2e8b57;
   color: white;
   padding: 3px 10px;
   border-radius: 12px;
@@ -132,6 +151,7 @@ code {
   justify-content: center;
   min-height: 100vh;
   background-color: #1e1e1e;
+  padding: 20px;
 }
 
 .auth-container h1 {
@@ -215,4 +235,16 @@ code {
 
 .logout-btn:hover {
   background: #444;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #d4d4d4;
+  font-size: 14px;
+}
+
+.checkbox-row input[type="checkbox"] {
+  width: auto;
 }
