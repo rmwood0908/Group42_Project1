@@ -1,0 +1,117 @@
+version: '3.9'
+
+services:
+
+  # ── Databases ────────────────────────────────────────────────────────────────
+
+  auth-db:
+    image: postgres:15-alpine
+    container_name: auth-db
+    environment:
+      POSTGRES_USER: ${AUTH_DB_USER:-auth_user}
+      POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD:-auth_pass}
+      POSTGRES_DB: ${AUTH_DB_NAME:-auth_db}
+    volumes:
+      - auth-db-data:/var/lib/postgresql/data
+      - ./auth-service/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${AUTH_DB_USER:-auth_user}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  snippet-db:
+    image: postgres:15-alpine
+    container_name: snippet-db
+    environment:
+      POSTGRES_USER: ${SNIPPET_DB_USER:-snippet_user}
+      POSTGRES_PASSWORD: ${SNIPPET_DB_PASSWORD:-snippet_pass}
+      POSTGRES_DB: ${SNIPPET_DB_NAME:-snippet_db}
+    volumes:
+      - snippet-db-data:/var/lib/postgresql/data
+      - ./snippet-service/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${SNIPPET_DB_USER:-snippet_user}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── Microservices ─────────────────────────────────────────────────────────────
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    environment:
+      PORT: 4001
+      DB_USER: ${AUTH_DB_USER:-auth_user}
+      DB_PASSWORD: ${AUTH_DB_PASSWORD:-auth_pass}
+      DB_HOST: auth-db
+      DB_NAME: ${AUTH_DB_NAME:-auth_db}
+      DB_PORT: 5432
+      JWT_SECRET: ${JWT_SECRET:-supersecretkey}
+    depends_on:
+      auth-db:
+        condition: service_healthy
+    networks:
+      - internal
+    restart: unless-stopped
+
+  snippet-service:
+    build: ./snippet-service
+    container_name: snippet-service
+    environment:
+      PORT: 4002
+      DB_USER: ${SNIPPET_DB_USER:-snippet_user}
+      DB_PASSWORD: ${SNIPPET_DB_PASSWORD:-snippet_pass}
+      DB_HOST: snippet-db
+      DB_NAME: ${SNIPPET_DB_NAME:-snippet_db}
+      DB_PORT: 5432
+    depends_on:
+      snippet-db:
+        condition: service_healthy
+    networks:
+      - internal
+    restart: unless-stopped
+
+  # ── API Gateway ───────────────────────────────────────────────────────────────
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: 4000
+      AUTH_SERVICE_URL: http://auth-service:4001
+      SNIPPET_SERVICE_URL: http://snippet-service:4002
+    depends_on:
+      - auth-service
+      - snippet-service
+    networks:
+      - internal
+    restart: unless-stopped
+
+  # ── React Client ──────────────────────────────────────────────────────────────
+
+  client:
+    build: ./client
+    container_name: client
+    ports:
+      - "5173:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - internal
+    restart: unless-stopped
+
+volumes:
+  auth-db-data:
+  snippet-db-data:
+
+networks:
+  internal:
+    driver: bridge
