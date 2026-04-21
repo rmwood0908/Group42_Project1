@@ -47,12 +47,12 @@ services:
     container_name: auth-service
     environment:
       PORT: 4001
-      DB_USER: ${AUTH_DB_USER:-auth_user}
-      DB_PASSWORD: ${AUTH_DB_PASSWORD:-auth_pass}
+      DB_USER: auth_user
+      DB_PASSWORD: auth_pass
       DB_HOST: auth-db
-      DB_NAME: ${AUTH_DB_NAME:-auth_db}
+      DB_NAME: auth_db
       DB_PORT: 5432
-      JWT_SECRET: ${JWT_SECRET:-supersecretkey}
+      JWT_SECRET: supersecretkey
     depends_on:
       auth-db:
         condition: service_healthy
@@ -65,10 +65,10 @@ services:
     container_name: snippet-service
     environment:
       PORT: 4002
-      DB_USER: ${SNIPPET_DB_USER:-snippet_user}
-      DB_PASSWORD: ${SNIPPET_DB_PASSWORD:-snippet_pass}
+      DB_USER: snippet_user
+      DB_PASSWORD: snippet_pass
       DB_HOST: snippet-db
-      DB_NAME: ${SNIPPET_DB_NAME:-snippet_db}
+      DB_NAME: snippet_db
       DB_PORT: 5432
     depends_on:
       snippet-db:
@@ -96,17 +96,6 @@ services:
     restart: unless-stopped
 
   # ── React Client ──────────────────────────────────────────────────────────────
-
-  client:
-    build: ./snippet-manager/client
-    container_name: client
-    ports:
-      - "5173:80"
-    depends_on:
-      - api-gateway
-    networks:
-      - internal
-    restart: unless-stopped
 
 volumes:
   auth-db-data:
