@@ -98,7 +98,7 @@ services:
   # ── React Client ──────────────────────────────────────────────────────────────
 
   client:
-    build: ./client
+    build: ./snippet-manager/client
     container_name: client
     ports:
       - "5173:80"
