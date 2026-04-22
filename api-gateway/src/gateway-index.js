@@ -47,23 +47,38 @@ async function authenticate(req, res, next) {
 // ─── Health Check ─────────────────────────────────────────────────────────────
 app.get('/health', (_, res) => res.json({ status: 'ok', service: 'api-gateway' }));
 
-// ─── Auth Routes (no auth required) ──────────────────────────────────────────
-app.use(
-  ['/api/register', '/api/login'],
-  createProxyMiddleware({
-    target: AUTH_SERVICE_URL,
-    changeOrigin: true,
-    pathRewrite: (path) => path.replace('/api/', '/auth/'),
-    on: {
-      error: (err, req, res) => {
-        console.error('Proxy error (auth):', err.message);
-        res.status(503).json({ error: 'Auth service unavailable' });
-      },
-    },
-  })
-);
+// ─── Auth Routes — manually forwarded to preserve JSON body ──────────────────
+app.post('/api/register', async (req, res) => {
+  try {
+    const response = await fetch(`${AUTH_SERVICE_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req.body),
+    });
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (err) {
+    console.error('Register proxy error:', err.message);
+    res.status(503).json({ error: 'Auth service unavailable' });
+  }
+});
 
-// ─── Snippet Routes (auth required) ───────────────────────────────────────────
+app.post('/api/login', async (req, res) => {
+  try {
+    const response = await fetch(`${AUTH_SERVICE_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req.body),
+    });
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (err) {
+    console.error('Login proxy error:', err.message);
+    res.status(503).json({ error: 'Auth service unavailable' });
+  }
+});
+
+// ─── Snippet Routes (auth required, proxied) ──────────────────────────────────
 app.use(
   '/api/snippets',
   authenticate,
