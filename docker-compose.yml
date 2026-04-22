@@ -1,0 +1,102 @@
+version: '3.9'
+
+services:
+
+  # ── Databases ────────────────────────────────────────────────────────────────
+
+  auth-db:
+    image: postgres:15-alpine
+    container_name: auth-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: auth_db
+    volumes:
+      - auth-db-data:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  snippets-db:
+    image: postgres:15-alpine
+    container_name: snippets-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: snippets_db
+    volumes:
+      - snippets-db-data:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── Microservices ─────────────────────────────────────────────────────────────
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    environment:
+      PORT: 3001
+      DB_HOST: auth-db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: auth_db
+      JWT_SECRET: secretkey
+    depends_on:
+      auth-db:
+        condition: service_healthy
+    networks:
+      - backend
+    restart: on-failure
+
+  snippets-service:
+    build: ./snippets-service
+    container_name: snippets-service
+    environment:
+      PORT: 3002
+      DB_HOST: snippets-db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: snippets_db
+    depends_on:
+      snippets-db:
+        condition: service_healthy
+    networks:
+      - backend
+    restart: on-failure
+
+  # ── API Gateway ───────────────────────────────────────────────────────────────
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      AUTH_SERVICE_URL: http://auth-service:3001
+      SNIPPETS_SERVICE_URL: http://snippets-service:3002
+    depends_on:
+      - auth-service
+      - snippets-service
+    networks:
+      - backend
+    restart: on-failure
+
+volumes:
+  auth-db-data:
+  snippets-db-data:
+
+networks:
+  backend:
+    driver: bridge
